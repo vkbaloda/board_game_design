@@ -6,9 +6,12 @@ typedef InteractionCallback = void Function(Direction dir);
 enum DetectorType { swipe } //, dPad, keyboard, mouse
 
 abstract class InputDetector extends StatelessWidget {
-  InputDetector({
-    required InteractionCallback interactionCallBack,
-    required Widget child,
+  final Widget child;
+  final InteractionCallback interactionCallback;
+
+  const InputDetector({
+    required this.interactionCallback,
+    required this.child,
     Key? key,
   }) : super(key: key);
 

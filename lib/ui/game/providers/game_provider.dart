@@ -44,12 +44,11 @@ class GameProvider extends IGameProvider {
     required this.iBoardSizeHelper,
     GameEntity? pausedGame,
     required this.iSaveGame,
-  })
-      : score = 0,
-        gameState = GameState.loading{
-    if(pausedGame == null) {
+  })  : score = 0,
+        gameState = GameState.loading {
+    if (pausedGame == null) {
       _reset();
-    }else{
+    } else {
       playerEntity = pausedGame.playerEntity;
       treasureEntity = pausedGame.treasureEntity;
       score = pausedGame.score;
@@ -60,7 +59,7 @@ class GameProvider extends IGameProvider {
   }
 
   @override
-  Future<void> notify(GameProviderEvent event) async{
+  Future<void> notify(GameProviderEvent event) async {
     switch (event.runtimeType) {
       case GameInteractionEvent:
         if (gameState == GameState.loading) return;
@@ -68,63 +67,55 @@ class GameProvider extends IGameProvider {
         break;
       case SaveGameEvent:
         await iSaveGame.saveGame(GameEntity(
-            score: score,
-            playerEntity: playerEntity,
-            treasureEntity: treasureEntity,
-            gameId: _gameId,
+          score: score,
+          playerEntity: playerEntity,
+          treasureEntity: treasureEntity,
+          gameId: _gameId,
         ));
         break;
       default:
-        throw UnsupportedError("some event is not addressed in the switch cases");
+        throw UnsupportedError(
+            "some event is not addressed in the switch cases");
     }
   }
 
   void _onUserInteraction(Direction dir) {
-    switch (dir) {  //may add methods in playerEntity to do job easier
-      case Direction.left:
-        if(playerEntity is not at leftEdget) move playerEntity left;
-        break;
-      case Direction.up:
-        if(playerEntity is not at upperEdget) move playerEntity up;
-        break;
-      case Direction.right:
-        if(playerEntity is not at rightEdget) move playerEntity right;
-        break;
-      case Direction.down:
-        if(playerEntity is not at bottomEdget) move playerEntity down;
-        break;
-    }
-    notifyListeners();
-
-    // check if got a treasure
-    if(treasureEntity == playerEntity){
-      treasureEntity = TreasureEntity.fromPoint(_getNewPoint());
-      score++;
+    if (!playerEntity.isAtEdge(
+        dir, iBoardSizeHelper.rows, iBoardSizeHelper.columns)) {
+      playerEntity = playerEntity.movedInDirection(dir);
       notifyListeners();
 
-      // checks if won the game
-      if(score == maxScore){
-        // may wait for a sec
-        _reset();
+      // check if got a treasure
+      if (treasureEntity == playerEntity) {
+        treasureEntity = TreasureEntity.fromPoint(_getNewPoint());
+        score++;
+        notifyListeners();
+
+        // checks if won the game
+        if (score == maxScore) {
+          // may wait for a sec
+          _reset();
+        }
       }
     }
   }
 
-  void _reset(){	//class GameProvider
+  void _reset() {
+    //class GameProvider
     gameState = GameState.loading;
     score = 0;
     treasureEntity = TreasureEntity.fromPoint(_getNewPoint());
-    do{
+    do {
       playerEntity = PlayerEntity.fromPoint(_getNewPoint());
     } while (playerEntity == treasureEntity);
     gameState = GameState.play;
     notifyListeners();
   }
 
-  Point<int> _getNewPoint(){
+  Point<int> _getNewPoint() {
     return iCreateNewPoint(
       columns: iBoardSizeHelper.columns,
-      rows:iBoardSizeHelper.rows,
+      rows: iBoardSizeHelper.rows,
     );
   }
 }

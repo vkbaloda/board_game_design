@@ -1,7 +1,7 @@
 import 'package:game_design/data/data_sources/data_source_interfaces.dart';
 import 'package:game_design/data/errors_exceptions/exceptions.dart';
 import 'package:game_design/domain/entities/game_entity.dart';
-import 'package:game_design/domain/repository_interface/i_game_repository/i_game_repository.dart';
+import 'package:game_design/domain/repository_interface/i_game_repository.dart';
 
 // keeps data in local storage
 class GameRepository implements IGameRepository {

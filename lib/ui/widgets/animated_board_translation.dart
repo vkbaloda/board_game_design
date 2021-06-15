@@ -23,8 +23,9 @@ abstract class AnimatedBoardTranslation extends Widget {
 
 class AnimatedBoardPositioned extends AnimatedPositioned
     implements AnimatedBoardTranslation {
-  static const _duration = Duration(milliseconds: 500);
-  AnimatedBoardPositioned({
+  static const _ANIMATION_DURATION = Duration(milliseconds: 500);
+
+  const AnimatedBoardPositioned({
     required int row,
     required int column,
     required double cellSize,
@@ -34,7 +35,7 @@ class AnimatedBoardPositioned extends AnimatedPositioned
           top: row * cellSize,
           left: column * cellSize,
           child: child,
-          duration: _duration,
+          duration: _ANIMATION_DURATION,
           key: key,
         );
 }

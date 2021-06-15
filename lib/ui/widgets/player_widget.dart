@@ -13,6 +13,6 @@ class SimplePlayerWidget extends StatelessWidget implements PlayerWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(Icons.accessibility);
+    return const Icon(Icons.accessibility);
   }
 }

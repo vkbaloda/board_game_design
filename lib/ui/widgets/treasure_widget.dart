@@ -14,6 +14,6 @@ class SimpleTreasureWidget extends StatelessWidget implements TreasureWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(Icons.work);
+    return const Icon(Icons.work);
   }
 }

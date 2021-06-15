@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 enum BoardCellType { simple }
 
 abstract class BoardCellWidget extends Widget {
-  factory BoardCellWidget.factory({BoardCellType type = BoardCellType.simple, Key? key}) {
+  factory BoardCellWidget.factory({
+    BoardCellType type = BoardCellType.simple,
+    Key? key,
+  }) {
     return SimpleCellWidget(key: key);
   }
 }
