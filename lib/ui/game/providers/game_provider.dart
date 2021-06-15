@@ -1,13 +1,17 @@
 import 'dart:math' show Point;
 
 import 'package:flutter/material.dart';
-import 'package:game_design/domain/entities/PlayerEntity.dart';
-import 'package:game_design/domain/entities/TreasureEntity.dart';
-import 'package:game_design/domain/resources/Constants.dart' show maxScore;
+import 'package:game_design/domain/entities/game_entity.dart';
+import 'package:game_design/domain/entities/player_entity.dart';
+import 'package:game_design/domain/entities/treasure_entity.dart';
+import 'package:game_design/domain/resources/constants.dart' show maxScore;
+import 'package:game_design/domain/utils/save_game.dart';
 import 'package:game_design/ui/game/providers/game_provider_events.dart';
-import 'package:game_design/ui/game/utils/create_new_point.dart';
-import 'package:game_design/ui/utils/board_size_helper.dart';
-import 'package:game_design/ui/utils/direction_enum.dart';
+import 'package:game_design/domain/utils/create_new_point.dart';
+import 'package:game_design/domain/utils/board_size_helper.dart';
+import 'package:game_design/domain/utils/direction_enum.dart';
+
+enum GameState { loading, play }
 
 abstract class IGameProvider extends ChangeNotifier {
   //state getters
@@ -15,36 +19,60 @@ abstract class IGameProvider extends ChangeNotifier {
   PlayerEntity get playerEntity;
   TreasureEntity get treasureEntity;
   IBoardSizeHelper get iBoardSizeHelper;
+  GameState get gameState;
 
   //notify event method
-  void notify(GameProviderEvent event);
+  Future<void> notify(GameProviderEvent event);
 }
-
-enum _GameState { loading, play }
 
 class GameProvider extends IGameProvider {
   //state objects
   late int score;
   late PlayerEntity playerEntity;
   late TreasureEntity treasureEntity;
-  late _GameState _gameState;
+  late GameState gameState;
+
+  late final int? _gameId;
 
   //dependencies
   final ICreateNewPoint iCreateNewPoint;
   final IBoardSizeHelper iBoardSizeHelper;
+  final ISaveGame iSaveGame;
 
-  GameProvider({required this.iCreateNewPoint, required this.iBoardSizeHelper})
+  GameProvider({
+    required this.iCreateNewPoint,
+    required this.iBoardSizeHelper,
+    GameEntity? pausedGame,
+    required this.iSaveGame,
+  })
       : score = 0,
-        _gameState = _GameState.loading{
-    _reset();
+        gameState = GameState.loading{
+    if(pausedGame == null) {
+      _reset();
+    }else{
+      playerEntity = pausedGame.playerEntity;
+      treasureEntity = pausedGame.treasureEntity;
+      score = pausedGame.score;
+      _gameId = pausedGame.gameId;
+      gameState = GameState.play;
+      notifyListeners();
+    }
   }
 
   @override
-  void notify(GameProviderEvent event) {
+  Future<void> notify(GameProviderEvent event) async{
     switch (event.runtimeType) {
       case GameInteractionEvent:
-        if (_gameState == _GameState.loading) return;
+        if (gameState == GameState.loading) return;
         _onUserInteraction((event as GameInteractionEvent).dir);
+        break;
+      case SaveGameEvent:
+        await iSaveGame.saveGame(GameEntity(
+            score: score,
+            playerEntity: playerEntity,
+            treasureEntity: treasureEntity,
+            gameId: _gameId,
+        ));
         break;
       default:
         throw UnsupportedError("some event is not addressed in the switch cases");
@@ -83,13 +111,13 @@ class GameProvider extends IGameProvider {
   }
 
   void _reset(){	//class GameProvider
-    _gameState = _GameState.loading;
+    gameState = GameState.loading;
     score = 0;
     treasureEntity = TreasureEntity.fromPoint(_getNewPoint());
     do{
       playerEntity = PlayerEntity.fromPoint(_getNewPoint());
     } while (playerEntity == treasureEntity);
-    _gameState = _GameState.play;
+    gameState = GameState.play;
     notifyListeners();
   }
 

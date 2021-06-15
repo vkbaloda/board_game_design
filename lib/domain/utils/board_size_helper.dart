@@ -1,4 +1,4 @@
-import 'package:game_design/domain/resources/Constants.dart' hide maxScore;
+import 'package:game_design/domain/resources/constants.dart' hide maxScore;
 
 abstract class IBoardSizeHelper {
   int get columns;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:game_design/ui/utils/direction_enum.dart';
-import 'package:game_design/ui/widgets/input_detector_interface.dart';
+import 'package:game_design/domain/utils/direction_enum.dart';
+import 'package:game_design/ui/widgets/input_detector.dart';
 
-class SwipeInputDetector extends InputDetectorInterface {
+class SwipeInputDetector extends InputDetector {
   static const double _MIN_SWIPE_VELOCITY = 0.15; //todo: non-checked value
   final Widget child;
   final InteractionCallback interactionCallback;
